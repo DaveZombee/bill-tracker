@@ -1,2 +1,2 @@
-# bill-tracker
-Computer science IA
+# Bill tracker
+Contains all files from Comp Sci IA.
