@@ -6,7 +6,7 @@ public class OverviewGUI {
 
 	private JPanel panel = new JPanel();
 
-	private String[] columnHeaders = { "Type", "Notes", "Pay period", "Due date" }; // Table column headings
+	private String[] columnHeaders = { "Type", "Notes", "Pay period", "Due date","Paid" }; // Table column headings
 	private JTable actualTable = new JTable(fillTable(), columnHeaders);
 	private JScrollPane billTable = new JScrollPane(actualTable); // Lets the column headings can be seen
 	
@@ -16,6 +16,7 @@ public class OverviewGUI {
 		actualTable.getTableHeader().setReorderingAllowed(false); // columns can't be dragged
 		actualTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);  // only one row can be selected
 		actualTable.getTableHeader().setResizingAllowed(false); // cannot resize the columns
+		actualTable.setRowHeight(actualTable.getRowHeight() + 10); // making the row size bigger
 
 		// Setting the font sizes
 		actualTable.setFont(new Font(null,Font.PLAIN,16)); // Sets font of the info in the table
@@ -45,5 +46,6 @@ public class OverviewGUI {
 		
 		return tableData;
 	}
+	
 
 }
