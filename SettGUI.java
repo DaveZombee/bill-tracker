@@ -8,8 +8,8 @@ public class SettGUI {
 	private JPanel panel = new JPanel();
 
 	// Making the spinners
-	private SpinnerModel firstSpinModel = new SpinnerNumberModel(1, 0, 10, 1);
-	private SpinnerModel secondSpinModel = new SpinnerNumberModel(3,0,10,1);
+	private SpinnerModel firstSpinModel = new SpinnerNumberModel(3, 0, 10, 1);
+	private SpinnerModel secondSpinModel = new SpinnerNumberModel(1,0,10,1);
 	
 	private JSpinner firstRemindSpinner = new JSpinner(firstSpinModel);
 	private JSpinner secondRemindSpinner = new JSpinner(secondSpinModel);
@@ -53,6 +53,7 @@ public class SettGUI {
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Gotta do some other stuff in here, but that's not implemented yet
+				// eg. save the set amount of days before to remind
 				
 				JOptionPane.showMessageDialog(panel, "Settings saved");
 			}
