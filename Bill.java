@@ -10,6 +10,7 @@ public class Bill {
 	private String notes;
 	private boolean paid;
 
+	// Static linked list for internal usage (not permanent storing of bills)
 	private static LinkedList<Bill> listOfBills = new LinkedList<Bill>();
 	
 	// Constructor for making a bill
@@ -29,7 +30,11 @@ public class Bill {
 	public String[] getArray() {
 		String formattedDate = dueDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")); // formats date
 		
-		String[] billArray = { type, notes, (String.valueOf(payPeriod)+" month(s)"), formattedDate};
+		String strPaid; // format paid to be yes or no instead of true or false
+		if (paid == true) strPaid = "Yes";
+		else strPaid = "No";
+		
+		String[] billArray = { type, notes, (String.valueOf(payPeriod)+" month(s)"), formattedDate, strPaid};
 		return billArray;
 	}
 	
@@ -38,11 +43,10 @@ public class Bill {
 		listOfBills.add(bill);
 	}
 	
-	// temporary linked list getter
+	// Linked list getter
 	public LinkedList<Bill> getList() {
 		return listOfBills;
 	}
-	
 
 	// Getters and setters for editing and specific viewing of a bill payment
 	public String getType() {
@@ -86,12 +90,7 @@ public class Bill {
 	}
 
 	public static void main(String[] args) {
-		// Create linked list to store existing bills
 		
-//		listOfBills.add(new Bill("type", 2004, 11, 4, 3, ""));
-//		listOfBills.add(new  Bill("gas", 2021, 12, 4, 3, ""));
-//		
-	
 
 	}
 
