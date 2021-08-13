@@ -39,8 +39,6 @@ public class AddNewGUI {
 	// Button to add the bill
 	private JButton addBillButton = new JButton("Add bill");
 
-	// Date formatting
-
 	// Constructor for the add new GUI
 	public AddNewGUI() {
 		panel.setLayout(new MigLayout());
@@ -48,7 +46,7 @@ public class AddNewGUI {
 		
 		// Font setting
 		settingFonts();
-
+		
 		// adding and formatting components
 		panel.add(reqLabel, "wrap");
 		
@@ -87,7 +85,7 @@ public class AddNewGUI {
 
 					// Creating an object to access the methods (for the linked list)
 					Bill tempBill = new Bill(selType, selYear, selMonth, selDate, selPayPeriod, selNotes);
-					tempBill.addToList(tempBill);
+					tempBill.getList().add(tempBill);
 
 					// Confirmation that it has been added
 					JOptionPane.showMessageDialog(panel, "New bill added");
@@ -116,7 +114,7 @@ public class AddNewGUI {
 
 	// For date formatting of the date picker
 	private class DateLabelFormatter extends AbstractFormatter {
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMMM yyyy");
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM yyyy");
 		
 		@Override
 		public Object stringToValue(String text) throws ParseException {
@@ -140,12 +138,13 @@ public class AddNewGUI {
 	}
 
 	// Resets all the different inputs to be empty
-	private void resetUserFields() {
+	public void resetUserFields() {
 		Integer resetSpinner = 1; // used for JSpinner, because it wants an object
 
 		typeField.setText("");
 		payPeriodPicker.setValue(resetSpinner);
-		dueDatePicker.getJFormattedTextField().setText("");
+		dueDatePicker.getJFormattedTextField().setText(""); // Makes text field empty
+		dueDatePicker.getModel().setValue(null); // Makes the actual datepicker null
 		notesField.setText("");
 	}
 	
@@ -159,11 +158,30 @@ public class AddNewGUI {
 		dueDateLabel.setFont(fontSize);
 		notesLabel.setFont(fontSize);
 		payPeriodInfo.setFont(new Font(null,Font.ITALIC,13));
+		
 		typeField.setFont(fontSize);
 		payPeriodPicker.setFont(fontSize);
 		notesField.setFont(fontSize);
 		dueDatePicker.setFont(fontSize);
+		dueDatePicker.getJFormattedTextField().setFont(new Font(null,Font.PLAIN,17));
 		addBillButton.setFont(fontSize);
 	}
-
+	
+	// Validating (used at the nav buttons) - if user has input info but hasn't saved
+	public boolean inputValidation() {
+		boolean empty = true;
+		
+		// Getting the inputs
+		String selType = typeField.getText();
+		int selPayPeriod = (Integer) payPeriodPicker.getValue();
+		String selNotes = notesField.getText();
+		Date selectedDay = (Date) dueDatePicker.getModel().getValue();
+		
+		// if typefield isn't empty or pay picker isn't one or notesfield isn't empty or selected day isn't null
+		if(selType.isEmpty() == false || selPayPeriod != 1 || selNotes.isEmpty() == false || selectedDay != null) {
+			empty = false;
+		}
+			
+		return empty;
+	}
 }
