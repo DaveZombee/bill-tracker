@@ -1,8 +1,9 @@
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
-
+import java.util.LinkedList;
 import java.awt.Font;
 import java.awt.event.*;
+import java.io.*;
 
 // Used for the date picker
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -15,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+// Used for both date picker and date formatting
 import javax.swing.JFormattedTextField.AbstractFormatter;
 
 public class AddNewGUI {
@@ -40,7 +43,7 @@ public class AddNewGUI {
 	private JButton addBillButton = new JButton("Add bill");
 
 	// Constructor for the add new GUI
-	public AddNewGUI() {
+	public AddNewGUI(LinkedList<Bill> listOfBills) {
 		panel.setLayout(new MigLayout());
 		payPeriodPicker.setEditor(new JSpinner.DefaultEditor(payPeriodPicker)); // makes spinner text uneditable
 		
@@ -83,10 +86,9 @@ public class AddNewGUI {
 					int selMonth = (selectedDay.getMonth() + 1); // Adding the number fixes the month
 					int selYear = (selectedDay.getYear() + 1900); // ^^
 
-					// Creating an object to access the methods (for the linked list)
-					Bill tempBill = new Bill(selType, selYear, selMonth, selDate, selPayPeriod, selNotes);
-					tempBill.getList().add(tempBill);
-
+					// Adding the bill to the list					
+					listOfBills.add(new Bill(selType,selYear,selMonth,selDate,selPayPeriod,selNotes));
+					
 					// Confirmation that it has been added
 					JOptionPane.showMessageDialog(panel, "New bill added");
 
@@ -96,6 +98,9 @@ public class AddNewGUI {
 		});
 
 		panel.add(addBillButton, "cell 3 5,gaptop 15"); // Button goes to bottom left
+		
+		// Action when right clicking AND a row is selected
+		
 
 	}
 
@@ -136,7 +141,7 @@ public class AddNewGUI {
 	public JPanel getPanel() {
 		return panel;
 	}
-
+	
 	// Resets all the different inputs to be empty
 	public void resetUserFields() {
 		Integer resetSpinner = 1; // used for JSpinner, because it wants an object
@@ -184,4 +189,7 @@ public class AddNewGUI {
 			
 		return empty;
 	}
-}
+	
+	
+	}
+	
