@@ -1,17 +1,14 @@
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedList;
 
-public class Bill {
+public class Bill implements Serializable { // Serializable so it can save the list
 
 	private String type;
 	private LocalDate dueDate;
 	private int payPeriod;
 	private String notes;
 	private boolean paid;
-
-	// Static linked list for internal usage (not permanent storing of bills)
-	private static LinkedList<Bill> listOfBills = new LinkedList<Bill>();
 	
 	// Constructor for making a bill
 	public Bill(String type, int year, int month, int date, int payPeriod, String notes) {
@@ -22,9 +19,6 @@ public class Bill {
 
 		paid = false; // default setting - it isn't paid
 	}
-
-	// Null constructor for when a bill is made to access the linked list
-	public Bill() {	}
 	
 	// Creates an array, which the JTable in the overview GUI needs
 	public String[] getArray() {
@@ -37,17 +31,7 @@ public class Bill {
 		String[] billArray = { type, notes, (String.valueOf(payPeriod)+" month(s)"), formattedDate, strPaid};
 		return billArray;
 	}
-	
-	// Allows for adding of bills to the linked list from other classes
-	public void addToList(Bill bill) {
-		listOfBills.add(bill);
-	}
-	
-	// Linked list getter
-	public LinkedList<Bill> getList() {
-		return listOfBills;
-	}
-
+		
 	// Getters and setters for editing and specific viewing of a bill payment
 	public String getType() {
 		return type;
@@ -90,7 +74,8 @@ public class Bill {
 	}
 
 	public static void main(String[] args) {
-		
+
+	
 
 	}
 
