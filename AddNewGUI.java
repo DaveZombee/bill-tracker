@@ -98,10 +98,7 @@ public class AddNewGUI {
 		});
 
 		panel.add(addBillButton, "cell 3 5,gaptop 15"); // Button goes to bottom left
-		
-		// Action when right clicking AND a row is selected
-		
-
+	
 	}
 
 	// Creating the due date picker in a function
