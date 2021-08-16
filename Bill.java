@@ -2,7 +2,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Bill implements Serializable { // Serializable so it can save the list
+public class Bill implements Serializable { // serializable so it can save the linkedList
 
 	private String type;
 	private LocalDate dueDate;
@@ -17,7 +17,7 @@ public class Bill implements Serializable { // Serializable so it can save the l
 		this.payPeriod = payPeriod;
 		this.notes = notes;
 
-		paid = false; // default setting - it isn't paid
+		paid = false; // default - it isn't paid
 	}
 	
 	// Creates an array, which the JTable in the overview GUI needs
@@ -65,18 +65,12 @@ public class Bill implements Serializable { // Serializable so it can save the l
 		this.notes = notes;
 	}
 
-	public boolean isPaid() {
+	public boolean getPaid() {
 		return paid;
 	}
 
 	public void setPaid(boolean paid) {
 		this.paid = paid;
-	}
-
-	public static void main(String[] args) {
-
-	
-
 	}
 
 }
