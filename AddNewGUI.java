@@ -32,6 +32,9 @@ public class AddNewGUI {
 	private JLabel dueDateLabel = new JLabel("Due date*");
 	private JLabel notesLabel = new JLabel("Notes");
 	private JLabel payPeriodInfo = new JLabel("(time between payments, in months)"); // Payment period: [JSpinner] *info*
+	
+	private JLabel dialogLabel = new JLabel(); // for the message dialogs
+	private Font dialogFont = new Font(null,Font.PLAIN,16); // font for dialogs
 
 	// All of the input fields
 	private JTextField typeField = new JTextField(15);
@@ -74,13 +77,23 @@ public class AddNewGUI {
 				int selPayPeriod = (Integer) payPeriodPicker.getValue();
 				String selNotes = notesField.getText();
 				Date selectedDay = (Date) dueDatePicker.getModel().getValue();
+				
+				dialogLabel.setFont(dialogFont); // setting the font of the dialog boxes
 
-				// Validation - if any of the first three fields are empty, the bill is not added
+				// if any of the first three fields are empty, the bill is not created
 				if (selType.isEmpty() || selectedDay == null) { // don't need for payperiod since it's default to 1
-					JOptionPane.showMessageDialog(panel, "You didn't fill in all of the required fields. Try again.");
+					dialogLabel.setText("You didn't fill in all of the required fields. Try again.");
+					JOptionPane.showMessageDialog(panel, dialogLabel);
+				}
+				
+				// if date has already been passed, bill is not created
+				else if(selectedDay.before(new Date())){ // new Date() gives the current date
+					dialogLabel.setText("The selected due date has already passed. Select another.");
+					JOptionPane.showMessageDialog(panel, dialogLabel);
 				}
 
 				else {
+				
 					// Extracting the date, month and year individually
 					int selDate = selectedDay.getDate();
 					int selMonth = (selectedDay.getMonth() + 1); // Adding the number fixes the month
@@ -90,7 +103,8 @@ public class AddNewGUI {
 					listOfBills.add(new Bill(selType,selYear,selMonth,selDate,selPayPeriod,selNotes));
 					
 					// Confirmation that it has been added
-					JOptionPane.showMessageDialog(panel, "New bill added");
+					dialogLabel.setText("New bill added");
+					JOptionPane.showMessageDialog(panel, dialogLabel);
 
 					resetUserFields(); // Resets fields to be empty
 				}
@@ -98,7 +112,6 @@ public class AddNewGUI {
 		});
 
 		panel.add(addBillButton, "cell 3 5,gaptop 15"); // Button goes to bottom left
-	
 	}
 
 	// Creating the due date picker in a function
@@ -170,7 +183,7 @@ public class AddNewGUI {
 	}
 	
 	// Validating (used at the nav buttons) - if user has input info but hasn't saved
-	public boolean inputValidation() {
+	public boolean inputsEmpty() {
 		boolean empty = true;
 		
 		// Getting the inputs
@@ -188,5 +201,4 @@ public class AddNewGUI {
 	}
 	
 	
-	}
-	
+	}	
