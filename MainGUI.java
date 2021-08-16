@@ -13,9 +13,9 @@ import java.util.LinkedList;
 public class MainGUI {
 
 	private JFrame frame = new JFrame("Bill tracker");
-	
-	private LinkedList<Bill> listOfBills = retrieveFromFile(); // deserializes linkedlist
 
+	private LinkedList<Bill> listOfBills = retrieveFromFile(); // deserializes linkedlist from file
+		
 	// Navigation bar buttons
 	private JButton OVButton = new JButton("Overview");
 	private JButton AddNewButton = new JButton("Add new");
@@ -25,18 +25,22 @@ public class MainGUI {
 	private AddNewGUI addNewGUI = new AddNewGUI(listOfBills);
 	private SettGUI settGUI = new SettGUI();
 
-	private int panel = 0; // also for validation - to see which panel is currently visible
+	private int panel = 0; // also for validation - to see which panel is currently visible (0 = overview)
+	
+	private JLabel confirmLabel = new JLabel("You will lose your unsaved info. Do you want to proceed?");
 
-	private Font fontSetter = new Font(null, Font.PLAIN, 24); // font for the nav buttons
+	private Font buttonFont = new Font(null, Font.PLAIN, 24); // font for the nav buttons
+	private Font confirmFont = new Font(null,Font.PLAIN,16); // font for the confirmation
 
 	// Creating the main page
 	public MainGUI() {
 		frame.setLayout(new MigLayout("", "[200][200][200]", ""));
-
+		
 		NavBar();
 		OVButton.setEnabled(false); // can't click overview button when starting
-		frame.add(new OverviewGUI(listOfBills).getPanel(), "span"); // Starting GUI, when program is first opened
 		
+		frame.add(new OverviewGUI(listOfBills).getPanel(), "span"); // Starting GUI, when program is first opened
+	
 		frame.pack();
 		frame.setVisible(true);
 		
@@ -44,7 +48,7 @@ public class MainGUI {
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(WindowEvent windowEvent) {
 				saveList();  // Serializes list
-				System.exit(0);
+				System.exit(0); // closes program and execution
 			}
 		});
 		
@@ -57,6 +61,8 @@ public class MainGUI {
 			public void actionPerformed(ActionEvent e) {
 				if (addNewValidation()) { // if add new doesn't have empty fields
 					buttonClicked(new OverviewGUI(listOfBills).getPanel(), OVButton, AddNewButton, SettButton);
+					// making a new OverviewGUI reloads the JTable
+					
 					panel = 0;
 				}
 			}
@@ -89,9 +95,9 @@ public class MainGUI {
 		frame.add(SettButton, "wrap,growx,width 200!");
 
 		// Setting the font size of the buttons
-		OVButton.setFont(fontSetter);
-		AddNewButton.setFont(fontSetter);
-		SettButton.setFont(fontSetter);
+		OVButton.setFont(buttonFont);
+		AddNewButton.setFont(buttonFont);
+		SettButton.setFont(buttonFont);
 
 	}
 
@@ -107,7 +113,7 @@ public class MainGUI {
 		
 		frame.add(targetPanel, "span"); // adds the target panel
 
-		frame.revalidate();
+		frame.revalidate(); // these two reload the frame
 		frame.repaint();
 	}
 
@@ -115,8 +121,10 @@ public class MainGUI {
 	private boolean addNewValidation() {
 		boolean valid = true;
 
-		if (panel == 1 && addNewGUI.inputValidation() == false) {
-			int option = JOptionPane.showConfirmDialog(frame, "You will lose your unsaved info. Do you want to proceed?");
+		// if panel is addnew and inputs aren't empty
+		if (panel == 1 && addNewGUI.inputsEmpty() == false) {
+			confirmLabel.setFont(confirmFont);
+			int option = JOptionPane.showConfirmDialog(frame, confirmLabel);
 
 			if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.NO_OPTION) {
 				valid = false;
@@ -126,10 +134,12 @@ public class MainGUI {
 		return valid;
 	}
 	
-	// Need to make validation for the settings (can do it in the same method as addNewValidation)
+	// Need to make validation for the settings (could do it in the same method as addNewValidation)
 	
 	// Deserialization - retrieves linkedList from list.ser
 	private LinkedList<Bill> retrieveFromFile(){
+		
+		LinkedList<Bill> listOfBills = new LinkedList<Bill>();
 		
 		try {
 			FileInputStream file = new FileInputStream("list.ser");
@@ -163,7 +173,7 @@ public class MainGUI {
 	}
 
 	public static void main(String args[]) {
-		new MainGUI();
+		new MainGUI(); // starts up the program
 	}
 
 }
