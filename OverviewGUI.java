@@ -2,7 +2,6 @@ import java.awt.Font;
 import java.util.LinkedList;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 
@@ -11,139 +10,277 @@ import net.miginfocom.swing.MigLayout;
 public class OverviewGUI {
 
 	private JPanel panel = new JPanel();
-	
+
 	// Things for table (these are created later)
 	private JTable actualTable;
 	private JScrollPane billTable;
 	private DefaultTableModel model;
-	private String[] columnHeaders = { "Type", "Notes", "Pay period", "Due date","Paid" }; // Table column headings
-	
+	private String[] columnHeaders = { "Type", "Notes", "Pay period", "Due date", "Paid" }; // Table column headings
+
 	// Menu which appears on right clicking a row
 	private JPopupMenu rightClickMenu = new JPopupMenu();
-	
+
+	private JMenu sortMenu = new JMenu("Sort");
+	private JMenuItem ascType = new JMenuItem("Ascending type"); // first letter first
+	private JMenuItem descType = new JMenuItem("Descending type"); // last letter first
+	private JMenuItem nearDate = new JMenuItem("Nearest due date"); // nearest due date first
+	private JMenuItem lateDate = new JMenuItem("Latest due date"); // latest due date first
+	private JMenuItem resetSort = new JMenuItem("Reset to default"); // resets back to order of added
+
 	private JMenuItem viewItem = new JMenuItem("View");
 	private JMenuItem editItem = new JMenuItem("Edit");
 	private JMenuItem paidItem = new JMenuItem("Toggle paid");
 	private JMenuItem deleteItem = new JMenuItem("Delete");
-	
-	private JLabel deleteWarning = new JLabel();
-	
+
+	private JLabel dialogText = new JLabel();
+
+	// This list is used for sorting purposes
+	private LinkedList<Bill> sortListOfBills = new LinkedList<Bill>(); // temporary list of bills
+
+
 	// Constructor for the overview GUI
 	public OverviewGUI(LinkedList<Bill> listOfBills) {
 		// Creating the JTable here because it needs a linked list
-		model = new DefaultTableModel(fillTable(listOfBills),columnHeaders); // used so that a row can be deleted from table
+		model = new DefaultTableModel(fillTable(listOfBills), columnHeaders); // so that a row can be deleted from table
 		actualTable = new JTable(model);
 		billTable = new JScrollPane(actualTable); // Lets the column headings can be seen
-	
+
 		// Table settings
 		actualTable.setDefaultEditor(Object.class, null); // table can't be edited
 		actualTable.getTableHeader().setReorderingAllowed(false); // columns can't be dragged
-		actualTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);  // only one row can be selected
+		actualTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // only one row can be selected
 		actualTable.getTableHeader().setResizingAllowed(false); // cannot resize the columns
 		actualTable.setRowHeight(actualTable.getRowHeight() + 10); // making the row size bigger
 		actualTable.setFocusable(false); // can't select a single cell
 
 		// Setting the font sizes
-		actualTable.setFont(new Font(null,Font.PLAIN,16)); // Sets font of the info in the table
-		actualTable.getTableHeader().setFont(new Font(null,Font.PLAIN,18)); // Sets font of the table headers
-		
+		actualTable.setFont(new Font(null, Font.PLAIN, 16)); // Sets font of the info in the table
+		actualTable.getTableHeader().setFont(new Font(null, Font.PLAIN, 18)); // Sets font of the table headers
+
 		// Layout and adding table
-		panel.setLayout(new MigLayout());		
-		panel.add(billTable,"width 595!, height 200!, align center"); 
+		panel.setLayout(new MigLayout());
+		panel.add(billTable, "width 595!, height 200!, align center");
 		// (it's the JScrollPane that's being added, but that's how it works)
-		
-		// Right click menu things
+
+		// Things for the right click menu
+		sortMenu.add(ascType);
+		sortMenu.add(descType);
+		sortMenu.add(nearDate);
+		sortMenu.add(lateDate);
+		sortMenu.add(resetSort);
+
+		rightClickMenu.add(sortMenu);
 		rightClickMenu.add(viewItem);
 		rightClickMenu.add(editItem);
 		rightClickMenu.add(paidItem);
 		rightClickMenu.add(deleteItem);
-		
-		Font menuFont = new Font(null,Font.PLAIN,16);
+
+		Font menuFont = new Font(null, Font.PLAIN, 16);
+		sortMenu.setFont(menuFont);
+		ascType.setFont(menuFont);
+		descType.setFont(menuFont);
+		nearDate.setFont(menuFont);
+		lateDate.setFont(menuFont);
+
 		viewItem.setFont(menuFont);
 		editItem.setFont(menuFont);
 		paidItem.setFont(menuFont);
 		deleteItem.setFont(menuFont);
-		
-		// For showing the right click menu
-		actualTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				// If a row isn't selected, the menu won't show
-				if (actualTable.getSelectedRow() == -1)	actualTable.setComponentPopupMenu(null);
-				
-				// if a row is selected, the menu does show
-				else actualTable.setComponentPopupMenu(rightClickMenu);
-			}
-		});
-		
-		// What happens when viewItem is clicked
+		resetSort.setFont(menuFont);
+
+		dialogText.setFont(menuFont);
+
+		actualTable.setComponentPopupMenu(rightClickMenu); // sets menu to be viewable
+
+		//////////////////////////////
+		// right click menu actions //
+		//////////////////////////////
+
 		viewItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selRow = actualTable.getSelectedRow();
-				new ViewGUI(listOfBills.get(selRow));			
+
+				if (selRow == -1) { // if a bill isn't selected
+					dialogText.setText("You haven't selected a bill to view. Try again.");
+					JOptionPane.showMessageDialog(panel, dialogText);
 				}
-		});
-		
-		// What happens when editItem is clicked
-		editItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+
+				else {
+					new ViewGUI(findBill(listOfBills,selRow));
+				}
 
 			}
 		});
-		
-		// What happens when paidItem is clicked
-		paidItem.addActionListener(new ActionListener() {
+
+		editItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selRow = actualTable.getSelectedRow();
-				
-				if (listOfBills.get(selRow).getPaid() == true) {
-					listOfBills.get(selRow).setPaid(false);
-					actualTable.getModel().setValueAt("No", selRow, 4);
+
+				if (selRow == -1) { // if a bill isn't selected
+					dialogText.setText("You haven't selected a bill to edit. Try again.");
+					JOptionPane.showMessageDialog(panel, dialogText);
 				}
+
 				else {
-					listOfBills.get(selRow).setPaid(true);
-					actualTable.getModel().setValueAt("Yes", selRow, 4);					
+					Bill selectedBill = findBill(listOfBills,selRow);
+					EditGUI editGUI = new EditGUI(selectedBill);
+
+					// When the edit frame is closed
+					editGUI.getFrame().addWindowListener(new WindowAdapter() {
+						public void windowClosing(WindowEvent e) {
+							reloadTable(listOfBills);
+						}
+					});
 				}
-				
-				actualTable.repaint(); // updates table
 			}
 		});
-		
-		// What happens when deleteItem is clicked
+
+		paidItem.addActionListener(new ActionListener() { // this doesn't work :(
+			public void actionPerformed(ActionEvent e) {
+				int selRow = actualTable.getSelectedRow();
+
+				if (selRow == -1) { // if a bill isn't selected
+					dialogText.setText("You haven't selected a bill to toggle. Try again.");
+					JOptionPane.showMessageDialog(panel, dialogText);
+				}
+
+				else {
+					Bill selectedBill = findBill(listOfBills,selRow);
+					
+					if (selectedBill.getPaid() == true) selectedBill.setPaid(false);
+					else selectedBill.setPaid(true);
+
+					reloadTable(listOfBills);
+				}
+			}
+		});
+
 		deleteItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selRow = actualTable.getSelectedRow();
-				
-				// warning message label
-				deleteWarning.setText("Are you sure you want to delete "+listOfBills.get(selRow).getType()+"?");
-				deleteWarning.setFont(menuFont);
-				
-				int option = JOptionPane.showConfirmDialog(panel, deleteWarning);
-			
-				if (option == JOptionPane.OK_OPTION) {
-					listOfBills.remove(selRow);
-					((DefaultTableModel) actualTable.getModel()).removeRow(selRow);
-					actualTable.repaint();
+
+				if (selRow == -1) { // if a bill isn't selected
+					dialogText.setText("You haven't selected a bill to delete. Try again.");
+					JOptionPane.showMessageDialog(panel, dialogText);
+				}
+
+				else {
+					Bill selectedBill = findBill(listOfBills, selRow);
+					// warning message label
+					dialogText.setText("Are you sure you want to delete " + selectedBill.getType() + "?");
+
+					int option = JOptionPane.showConfirmDialog(panel, dialogText);
+
+					if (option == JOptionPane.OK_OPTION) {
+						listOfBills.remove(selectedBill);
+						// if table is sorted, also remove it from the sortList
+						if (sortListOfBills.isEmpty() == false) sortListOfBills.remove(selectedBill);
+						reloadTable(listOfBills);
+					}
 				}
 			}
 		});
+
+		////////////////////////
+		// Table sorter items //
+		////////////////////////
+
+		ascType.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sortListOfBills = (LinkedList<Bill>) listOfBills.clone(); // clone of listOfBills
+
+				int listLength = sortListOfBills.size();
+
+				for (int i = 0; i < listLength - 1; i++) {
+					int smallestIndex = i;
+
+					for (int j = i + 1; j < listLength; j++) {
+						String tempType1 = sortListOfBills.get(j).getType();
+						String tempType2 = sortListOfBills.get(smallestIndex).getType();
+
+						if (tempType1.compareTo(tempType2) < 0) {
+							smallestIndex = j;
+						}
+					}
+
+					Bill tempBill = sortListOfBills.get(smallestIndex);
+					sortListOfBills.set(smallestIndex, sortListOfBills.get(i));
+					sortListOfBills.set(i, tempBill);
+				}
+
+				// Reloads the table with the temporarily sorted list of bills
+				reloadTable(listOfBills);
+
+			}
+		});
+
+		resetSort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sortListOfBills.clear();
+				reloadTable(listOfBills); // the default table model
+			}
+		});
+
 	}
-	
+
 	// Lets MainGUI access this panel of GUI
 	public JPanel getPanel() {
 		return panel;
 	}
-	
-	// Fills in the table data
+
+	// Provides a 2d array of the listOfBills to create the table model
 	private String[][] fillTable(LinkedList<Bill> listOfBills) {
 		int listLength = listOfBills.size();
-		
+
 		String[][] tableData = new String[listLength][5]; // [rows][columns]
-		
+
 		for (int i = 0; i < listLength; i++) {
 			tableData[i] = listOfBills.get(i).getArray();
 		}
-		
+
 		return tableData;
 	}
+
+	// Reloads table with updated info
+	public void reloadTable(LinkedList<Bill> listOfBills) {
+		if (sortListOfBills.isEmpty() == true) { // if the table is not sorted by anything
+			model = new DefaultTableModel(fillTable(listOfBills), columnHeaders);
+		}
+		
+		else { // if it is sorted
+			model = new DefaultTableModel(fillTable(sortListOfBills),columnHeaders);
+		}
+		
+		actualTable.setModel(model);
+	}
+
+	// finds where the location of bill in relation to the linkedlist is if the table has been sorted
+	private Bill findBill(LinkedList<Bill> listOfBills, int selRow) {
+		Bill returnBill = null;
+			
+		// if the temp linked list is empty meaning the table hasn't been sorted
+		if(sortListOfBills.size() == 0) {
+			returnBill = listOfBills.get(selRow);
+		}
+		
+		// if the bill is in the same position
+		else if (listOfBills.get(selRow) == sortListOfBills.get(selRow)) {
+			returnBill = listOfBills.get(selRow);
+		}
+		
+		// Brute force finding the bill		
+		else {
+			boolean found = false;
+			while(found == false) {
+				for (int i = 0; i < listOfBills.size(); i ++) {
+					if (sortListOfBills.get(selRow) == listOfBills.get(i)) {
+						returnBill = listOfBills.get(i);
+						found = true;
+					}
+				}
+			}
+		}
 	
+		return returnBill;
+	}
 }
