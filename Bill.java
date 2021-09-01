@@ -11,9 +11,9 @@ public class Bill implements Serializable { // serializable so it can save the l
 	private boolean paid;
 	
 	// Constructor for making a bill
-	public Bill(String type, int year, int month, int date, int payPeriod, String notes) {
+	public Bill(String type, LocalDate dueDate, int payPeriod, String notes) {
 		this.type = type;
-		dueDate = LocalDate.of(year, month, date);
+		this.dueDate = dueDate;
 		this.payPeriod = payPeriod;
 		this.notes = notes;
 
