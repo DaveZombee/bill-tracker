@@ -4,32 +4,43 @@ import javax.swing.JSpinner.DefaultEditor;
 
 import net.miginfocom.swing.MigLayout;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class SettGUI {
 
 	private JPanel panel = new JPanel();
 
-	// Making the spinners
-	private SpinnerModel firstSpinModel = new SpinnerNumberModel(3, 0, 10, 1);
-	private SpinnerModel secondSpinModel = new SpinnerNumberModel(1,0,10,1);
-	
-	private JSpinner firstRemindSpinner = new JSpinner(firstSpinModel);
-	private JSpinner secondRemindSpinner = new JSpinner(secondSpinModel);
+	// instantiating the spinners
+	private SpinnerModel firstSpinModel;
+	private SpinnerModel secondSpinModel;
+
+	private JSpinner firstRemindSpinner;
+	private JSpinner secondRemindSpinner;
 
 	// Labels
 	private JLabel firstReminder = new JLabel("First reminder:");
 	private JLabel secondReminder = new JLabel("Second reminder:");
 	private JLabel info = new JLabel("Set the amount of days before the due date of a payment for a reminder");
 	private JLabel saveDialog = new JLabel("Settings saved");
-	
+
 	// Save settings button
 	private JButton saveButton = new JButton("Save");
-	
+
 	private Font fontSize = new Font(null, Font.PLAIN, 18); // font for all components
-	
+
 	// Constructor for the settings GUI
-	public SettGUI() {
+	public SettGUI(ArrayList<Integer> remindList) {
 		panel.setLayout(new MigLayout());
+		
+		// Creating the spinners	
+		int firstSpinAmt = remindList.get(0);
+		int secondSpinAmt = remindList.get(1);
+		
+		firstSpinModel = new SpinnerNumberModel(firstSpinAmt,0,10,1);
+		secondSpinModel = new SpinnerNumberModel(secondSpinAmt,0,10,1);
+	
+		firstRemindSpinner = new JSpinner(firstSpinModel);
+		secondRemindSpinner = new JSpinner(secondSpinModel);
 		
 		// Setting fonts of the labels and spinners
 		firstRemindSpinner.setFont(fontSize);
@@ -44,7 +55,7 @@ public class SettGUI {
 		firstRemindSpinner.setEditor(new JSpinner.DefaultEditor(firstRemindSpinner));
 		secondRemindSpinner.setEditor(new JSpinner.DefaultEditor(secondRemindSpinner));
 		
-		// Setting spinner text to be centered
+		// Spinner text to be centered
 		JSpinner.DefaultEditor firstSpinEditor = (DefaultEditor) firstRemindSpinner.getEditor();
 		firstSpinEditor.getTextField().setHorizontalAlignment(JTextField.CENTER);
 		
@@ -62,8 +73,9 @@ public class SettGUI {
 		// Action when button is clicked
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Gotta do some other stuff in here, but that's not implemented yet
-				// eg. save the set amount of days before to remind
+				
+				remindList.set(0, (int) firstRemindSpinner.getValue());
+				remindList.set(1, (int) secondRemindSpinner.getValue());
 				
 				JOptionPane.showMessageDialog(panel, saveDialog);
 			}
@@ -75,5 +87,26 @@ public class SettGUI {
 	public JPanel getPanel() {
 		return panel;
 	}
-
+	
+	// Checking if the inputs have been changed, but not saved
+	public boolean isChanged(ArrayList<Integer> remindList) {
+		boolean changed = false;
+		
+		// Getting the values from the spinners
+		int firstSpinnerAmt = (int) firstRemindSpinner.getValue();
+		int secondSpinnerAmt = (int) secondRemindSpinner.getValue();
+		
+		// the actual checking process
+		if(firstSpinnerAmt != remindList.get(0) || secondSpinnerAmt != remindList.get(1)) {
+			changed = true;
+		}
+		
+		return changed;
+	}
+	
+	// Resets user fields when clicking between panels
+	public void resetFields(ArrayList<Integer> remindList) {
+		firstRemindSpinner.setValue(remindList.get(0));
+		secondRemindSpinner.setValue(remindList.get(1));
+	}
 }
