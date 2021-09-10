@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
+import java.time.LocalDate;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -36,7 +37,6 @@ public class OverviewGUI {
 
 	// This list is used for sorting purposes
 	private LinkedList<Bill> sortListOfBills = new LinkedList<Bill>(); // temporary list of bills
-
 
 	// Constructor for the overview GUI
 	public OverviewGUI(LinkedList<Bill> listOfBills) {
@@ -106,7 +106,7 @@ public class OverviewGUI {
 				}
 
 				else {
-					new ViewGUI(findBill(listOfBills,selRow));
+					new ViewGUI(findBill(listOfBills, selRow));
 				}
 
 			}
@@ -122,7 +122,7 @@ public class OverviewGUI {
 				}
 
 				else {
-					Bill selectedBill = findBill(listOfBills,selRow);
+					Bill selectedBill = findBill(listOfBills, selRow);
 					EditGUI editGUI = new EditGUI(selectedBill);
 
 					// When the edit frame is closed
@@ -145,10 +145,12 @@ public class OverviewGUI {
 				}
 
 				else {
-					Bill selectedBill = findBill(listOfBills,selRow);
-					
-					if (selectedBill.getPaid() == true) selectedBill.setPaid(false);
-					else selectedBill.setPaid(true);
+					Bill selectedBill = findBill(listOfBills, selRow);
+
+					if (selectedBill.getPaid() == true)
+						selectedBill.setPaid(false);
+					else
+						selectedBill.setPaid(true);
 
 					reloadTable(listOfBills);
 				}
@@ -174,7 +176,8 @@ public class OverviewGUI {
 					if (option == JOptionPane.OK_OPTION) {
 						listOfBills.remove(selectedBill);
 						// if table is sorted, also remove it from the sortList
-						if (sortListOfBills.isEmpty() == false) sortListOfBills.remove(selectedBill);
+						if (sortListOfBills.isEmpty() == false)
+							sortListOfBills.remove(selectedBill);
 						reloadTable(listOfBills);
 					}
 				}
@@ -187,30 +190,25 @@ public class OverviewGUI {
 
 		ascType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sortListOfBills = (LinkedList<Bill>) listOfBills.clone(); // clone of listOfBills
+				typeSorter(listOfBills, 0);
+			}
+		});
 
-				int listLength = sortListOfBills.size();
-
-				for (int i = 0; i < listLength - 1; i++) {
-					int smallestIndex = i;
-
-					for (int j = i + 1; j < listLength; j++) {
-						String tempType1 = sortListOfBills.get(j).getType();
-						String tempType2 = sortListOfBills.get(smallestIndex).getType();
-
-						if (tempType1.compareTo(tempType2) < 0) {
-							smallestIndex = j;
-						}
-					}
-
-					Bill tempBill = sortListOfBills.get(smallestIndex);
-					sortListOfBills.set(smallestIndex, sortListOfBills.get(i));
-					sortListOfBills.set(i, tempBill);
-				}
-
-				// Reloads the table with the temporarily sorted list of bills
-				reloadTable(listOfBills);
-
+		descType.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				typeSorter(listOfBills, 1);
+			}
+		});
+		
+		nearDate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dueDateSorter(listOfBills,0);
+			}
+		});
+		
+		lateDate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dueDateSorter(listOfBills,1);
 			}
 		});
 
@@ -246,41 +244,90 @@ public class OverviewGUI {
 		if (sortListOfBills.isEmpty() == true) { // if the table is not sorted by anything
 			model = new DefaultTableModel(fillTable(listOfBills), columnHeaders);
 		}
-		
+
 		else { // if it is sorted
-			model = new DefaultTableModel(fillTable(sortListOfBills),columnHeaders);
+			model = new DefaultTableModel(fillTable(sortListOfBills), columnHeaders);
 		}
-		
+
 		actualTable.setModel(model);
 	}
 
 	// finds where the location of bill in relation to the linkedlist is if the table has been sorted
 	private Bill findBill(LinkedList<Bill> listOfBills, int selRow) {
 		Bill returnBill = null;
-			
+
 		// if the temp linked list is empty meaning the table hasn't been sorted
-		if(sortListOfBills.size() == 0) {
+		if (sortListOfBills.size() == 0) {
 			returnBill = listOfBills.get(selRow);
 		}
 		
-		// if the bill is in the same position
-		else if (listOfBills.get(selRow) == sortListOfBills.get(selRow)) {
-			returnBill = listOfBills.get(selRow);
-		}
-		
-		// Brute force finding the bill		
+		// finding the bill
 		else {
-			boolean found = false;
-			while(found == false) {
-				for (int i = 0; i < listOfBills.size(); i ++) {
-					if (sortListOfBills.get(selRow) == listOfBills.get(i)) {
-						returnBill = listOfBills.get(i);
-						found = true;
-					}
+			int selPos = listOfBills.indexOf(sortListOfBills.get(selRow)); // find its position
+			returnBill = listOfBills.get(selPos); // get the bill
+		}
+
+		return returnBill;
+	}
+
+	// Sorts the type (selection sort)
+	private void typeSorter(LinkedList<Bill> listOfBills, int type) {
+		sortListOfBills = (LinkedList<Bill>) listOfBills.clone(); // clone of listOfBills
+		int listLength = sortListOfBills.size();
+
+		for (int i = 0; i < listLength - 1; i++) {
+			int indexPos = i;
+
+			for (int j = i + 1; j < listLength; j++) {
+				String tempType1 = sortListOfBills.get(j).getType();
+				String tempType2 = sortListOfBills.get(indexPos).getType();
+
+				if (type == 0) { // ascending order
+					if (tempType1.compareTo(tempType2) < 0)
+						indexPos = j;
+				}
+
+				else if (type == 1) { // descending order
+					if (tempType1.compareTo(tempType2) > 0)
+						indexPos = j;
 				}
 			}
+
+			Bill tempBill = sortListOfBills.get(indexPos);
+			sortListOfBills.set(indexPos, sortListOfBills.get(i));
+			sortListOfBills.set(i, tempBill);
 		}
-	
-		return returnBill;
+
+		// Reloads the table with the temporarily sorted list of bills
+		reloadTable(listOfBills);
+	}
+
+	// Sorts the due date (selecton sort)
+	private void dueDateSorter(LinkedList<Bill> listOfBills, int type) {
+		sortListOfBills = (LinkedList<Bill>) listOfBills.clone(); // clones list of bills
+		int listLength = sortListOfBills.size();
+
+		for (int i = 0; i < listLength - 1; i++) {
+			int indexPos = i;
+
+			for (int j = i + 1; j < listLength; j++) {
+				LocalDate tempDate1 = sortListOfBills.get(j).getDueDate();
+				LocalDate tempDate2 = sortListOfBills.get(indexPos).getDueDate();
+
+				if(type == 0) { // soonest due date
+					if (tempDate1.isBefore(tempDate2)) indexPos = j; 
+				}
+				
+				if (type == 1) { // latest due date
+					if(tempDate1.isAfter(tempDate2)) indexPos = j;
+				}
+			}
+			Bill tempBill = sortListOfBills.get(indexPos);
+			sortListOfBills.set(indexPos, sortListOfBills.get(i));
+			sortListOfBills.set(i,tempBill);
+		}
+		
+		// Reloads table with the temp sorted list of bills
+		reloadTable(listOfBills);
 	}
 }
