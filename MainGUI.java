@@ -1,7 +1,9 @@
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 
+import java.awt.AWTException;
 import java.awt.Font;
+import java.awt.SystemTray;
 import java.awt.event.*;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.LinkedList;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 
 public class MainGUI {
@@ -37,14 +40,8 @@ public class MainGUI {
 
 	private Font buttonFont = new Font(null, Font.PLAIN, 24); // font for the nav buttons
 
-	// Creating the main page
+	// Creating the main page (constructor)
 	public MainGUI() {
-		// Some testin with the due dates ////////////////////////////////////
-//		if (listOfBills.get(1).getDueDate().compareTo(LocalDate.now()) == 0){
-//			System.out.println("The date is today 0o0"); // positive = future, negative = past, 0 = today
-//		}
-		//////////////////////////////////////////////////////////////////////
-
 		// Frame layout
 		frame.setLayout(new MigLayout("", "[200][200][200]", ""));
 
@@ -105,6 +102,24 @@ public class MainGUI {
 				}
 			}
 		});
+
+		Reminders reminders = new Reminders(listOfBills, remindList); // handles the alerting stuff
+		if (reminders.hasAlerts()) {
+			String messageAlertStr = reminders.getAlertMessageStr();
+			
+			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
+				try {
+					reminders.alertSender(messageAlertStr); // sends out the alert with the message
+				} catch (AWTException e) {
+				}
+			}
+			
+			else { // OS doesn't support the system tray, so send out dialog box instead
+				JLabel alertLabel = new JLabel("<html><p style=\"width:250px\">"+messageAlertStr+"</p></html>");
+				alertLabel.setFont(new Font(null,Font.PLAIN,16));
+				JOptionPane.showMessageDialog(frame,alertLabel);
+			}
+		}
 	}
 
 	// Creating the navigation bar and its functions
@@ -122,7 +137,8 @@ public class MainGUI {
 	}
 
 	// Generic form of action taken when any of the nav buttons are clicked, used above
-	private void buttonClicked(JPanel targetPanel, JButton clickedButton, JButton unclickedButton1, JButton unclickedButton2) {
+	private void buttonClicked(JPanel targetPanel, JButton clickedButton, JButton unclickedButton1,
+			JButton unclickedButton2) {
 		frame.getContentPane().removeAll(); // Removes everything from the frame
 		addNewGUI.resetUserFields(); // Resets the inputs in add new if the user added info to them
 		settGUI.resetFields(remindList); // resets the inputs back to saved settings if user changed it
@@ -130,7 +146,7 @@ public class MainGUI {
 		NavBar(); // Adds the nav bar
 		clickedButton.setEnabled(false); // sets this button to be unclickable
 		unclickedButton1.setEnabled(true); // makes this button clickable
-		unclickedButton2.setEnabled(true); // same as above
+		unclickedButton2.setEnabled(true); // makes this button clickable
 
 		frame.add(targetPanel, "span"); // adds the target panel
 
@@ -184,7 +200,7 @@ public class MainGUI {
 			c.printStackTrace();
 		}
 
-		if (remindList.isEmpty()) { // if the program is being started for the first time
+		if (((ArrayList<Integer>) savedList[1]).isEmpty()) { // if the program is being started for the first time
 			remindList.add(1);
 			remindList.add(3);
 		}
