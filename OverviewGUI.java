@@ -40,6 +40,9 @@ public class OverviewGUI {
 
 	// Constructor for the overview GUI
 	public OverviewGUI(LinkedList<Bill> listOfBills) {
+		// checking if due dates need to be updated, and updating them if needed
+		datePassedUpdater(listOfBills);
+		
 		// Creating the JTable here because it needs a linked list
 		model = new DefaultTableModel(fillTable(listOfBills), columnHeaders); // so that a row can be deleted from table
 		actualTable = new JTable(model);
@@ -62,19 +65,21 @@ public class OverviewGUI {
 		panel.add(billTable, "width 595!, height 200!, align center");
 		// (it's the JScrollPane that's being added, but that's how it works)
 
-		// Things for the right click menu
+		// adding components to the submenu of sortmenu
 		sortMenu.add(ascType);
 		sortMenu.add(descType);
 		sortMenu.add(nearDate);
 		sortMenu.add(lateDate);
 		sortMenu.add(resetSort);
 
+		// adding all the items to the actual right click menu
 		rightClickMenu.add(sortMenu);
 		rightClickMenu.add(viewItem);
 		rightClickMenu.add(editItem);
 		rightClickMenu.add(paidItem);
 		rightClickMenu.add(deleteItem);
 
+		// Setting fonts for all of the right click menu components
 		Font menuFont = new Font(null, Font.PLAIN, 16);
 		sortMenu.setFont(menuFont);
 		ascType.setFont(menuFont);
@@ -239,7 +244,7 @@ public class OverviewGUI {
 		return tableData;
 	}
 
-	// Reloads table with updated info
+	// Reloads table with updated info (this is also used to reset the jtable to the default if it's been sorted)
 	public void reloadTable(LinkedList<Bill> listOfBills) {
 		if (sortListOfBills.isEmpty() == true) { // if the table is not sorted by anything
 			model = new DefaultTableModel(fillTable(listOfBills), columnHeaders);
@@ -329,5 +334,18 @@ public class OverviewGUI {
 		
 		// Reloads table with the temp sorted list of bills
 		reloadTable(listOfBills);
+	}
+	
+	// Checks the due dates if they need to be updated
+	private void datePassedUpdater(LinkedList<Bill> listOfBills) {
+		LocalDate today = LocalDate.now();
+		
+		for (int i = 0; i < listOfBills.size(); i++) {
+			LocalDate billDueDate = listOfBills.get(i).getDueDate();
+			
+			if (billDueDate.compareTo(today) < 0) { // if the date has passed (does not count if the date is today)
+				System.out.println(listOfBills.get(i).getType()+" has passed");
+			}
+		}
 	}
 }
