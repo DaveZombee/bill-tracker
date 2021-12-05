@@ -1,8 +1,8 @@
-import javax.swing.*;
-import java.util.Date;
-import java.util.LinkedList;
-import java.awt.event.*;
-import java.time.LocalDate;
+import javax.swing.*; // for GUI
+import java.util.Date; // getting date out of the jdatepicker
+import java.util.LinkedList; // list of bills
+import java.awt.event.*; // action listeners
+import java.time.LocalDate; // converting the date from the jdatepicker to localdate for bill
 
 public class AddNewGUI extends InputGUI {
 
@@ -26,10 +26,10 @@ public class AddNewGUI extends InputGUI {
 					int selMonth = (selDay.getMonth() + 1); // Adding the number fixes the month
 					int selYear = (selDay.getYear() + 1900); // ^^
 
-					LocalDate localDueDate = LocalDate.of(selYear, selMonth, selDate);
+					LocalDate selLocalDate = LocalDate.of(selYear, selMonth, selDate);
 
 					// Adding the bill to the list
-					listOfBills.add(new Bill(selType, localDueDate, selPayPeriod, selNotes));
+					listOfBills.add(new Bill(selType, selLocalDate, selPayPeriod, selNotes));
 
 					// Confirmation that it has been added
 					getDialogLabel().setText("New bill added");
@@ -42,7 +42,7 @@ public class AddNewGUI extends InputGUI {
 		});
 	}
 
-	// Resets the user fields to their defaults (used here and in MainGUI)
+	// Resets the user fields to be blank/empty (used here and in MainGUI)
 	public void resetUserFields() {
 		getTypeField().setText("");
 		getPayPeriodPicker().setValue(1);
