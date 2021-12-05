@@ -1,8 +1,8 @@
-import java.io.Serializable;
+import java.io.Serializable; // To save bills
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Bill implements Serializable { // serializable so it can save the linkedList
+public class Bill implements Serializable { // serializable so the linkedList can be saved
 
 	private String type;
 	private LocalDate dueDate;
@@ -72,5 +72,4 @@ public class Bill implements Serializable { // serializable so it can save the l
 	public void setPaid(boolean paid) {
 		this.paid = paid;
 	}
-
 }
