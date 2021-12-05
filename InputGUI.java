@@ -1,7 +1,7 @@
+// GUI
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
 
 // Used for date picker
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -12,11 +12,11 @@ import java.util.Properties;
 // Used for date formatting
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.JFormattedTextField.AbstractFormatter; // Used for both date picker and formatting
+import javax.swing.JSpinner.DefaultEditor; // for the JSpinners to have wider text fields
 
 public class InputGUI {
 
@@ -48,6 +48,10 @@ public class InputGUI {
 		panel.setLayout(new MigLayout());
 
 		payPeriodPicker.setEditor(new JSpinner.DefaultEditor(payPeriodPicker)); // makes spinner text uneditable
+		
+		// Setting spinner text to be centered
+		JSpinner.DefaultEditor spinEditor = (DefaultEditor) payPeriodPicker.getEditor();
+		spinEditor.getTextField().setHorizontalAlignment(JTextField.CENTER);
 
 		// Font setting
 		settingFonts();
@@ -59,7 +63,7 @@ public class InputGUI {
 		panel.add(typeField, "span,wrap");
 
 		panel.add(payPeriodLabel);
-		panel.add(payPeriodPicker);
+		panel.add(payPeriodPicker,"width 40!");
 		panel.add(payPeriodInfo, "wrap");
 
 		panel.add(dueDateLabel, "align right");
@@ -130,15 +134,15 @@ public class InputGUI {
 	public boolean saveButtonClicked(String selType, Date selDay) {
 		boolean saved = false;
 
-		// If the required fields are now empty for some reason
+		// If the required fields are empty
 		if (selType.isEmpty() || selDay == null) { // don't need for payperiod since it can't ever be empty
-			getDialogLabel().setText("You didn't fill in all of the required fields. Try again.");
+			dialogLabel.setText("You didn't fill in all of the required fields. Try again.");
 			JOptionPane.showMessageDialog(getPanel(), getDialogLabel());
 		}
 
-		// if date has already been passed, bill is not created
+		// if date has already been passed, bill is not saved
 		else if (selDay.before(new Date())) { // new Date() gives the current date
-			getDialogLabel().setText("The selected due date has already passed. Select another.");
+			dialogLabel.setText("The selected due date has already passed. Select another.");
 			JOptionPane.showMessageDialog(getPanel(), getDialogLabel());
 		}
 
@@ -179,5 +183,4 @@ public class InputGUI {
 	public JPanel getPanel() {
 		return panel;
 	}
-
 }
