@@ -1,12 +1,14 @@
+// For the GUI
 import java.awt.Font;
-import java.util.LinkedList;
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.*;
-import java.time.LocalDate;
-
+import javax.swing.table.DefaultTableModel; // used for JTable
 import net.miginfocom.swing.MigLayout;
+
+import java.awt.event.*; // Action listeners
+
+// Some other imports
+import java.util.LinkedList;
+import java.time.LocalDate;
 
 public class OverviewGUI {
 
@@ -28,19 +30,19 @@ public class OverviewGUI {
 	private JMenuItem lateDate = new JMenuItem("Latest due date"); // latest due date first
 	private JMenuItem resetSort = new JMenuItem("Reset to default"); // resets back to order of added
 
-	private JMenuItem viewItem = new JMenuItem("View");
-	private JMenuItem editItem = new JMenuItem("Edit");
-	private JMenuItem paidItem = new JMenuItem("Toggle paid");
-	private JMenuItem deleteItem = new JMenuItem("Delete");
+	private JMenuItem viewItem = new JMenuItem("View"); // viewing bill
+	private JMenuItem editItem = new JMenuItem("Edit"); // editing bill
+	private JMenuItem paidItem = new JMenuItem("Toggle paid"); // changing bill to be 'paid'
+	private JMenuItem deleteItem = new JMenuItem("Delete"); // delete bill
 
-	private JLabel dialogText = new JLabel();
+	private JLabel dialogText = new JLabel(); // used in dialog boxes (labels will change)
 
 	// This list is used for sorting purposes
 	private LinkedList<Bill> sortListOfBills = new LinkedList<Bill>(); // temporary list of bills
 
 	// Constructor for the overview GUI
 	public OverviewGUI(LinkedList<Bill> listOfBills) {
-		// checking if due dates need to be updated, and updating them if needed
+		// checking if due dates need to be updated cos they've passed, and updating them if needed
 		datePassedUpdater(listOfBills);
 		
 		// Creating the JTable here because it needs a linked list
@@ -65,7 +67,7 @@ public class OverviewGUI {
 		panel.add(billTable, "width 595!, height 200!, align center");
 		// (it's the JScrollPane that's being added, but that's how it works)
 
-		// adding components to the submenu of sortmenu
+		// adding components to the sortmenu
 		sortMenu.add(ascType);
 		sortMenu.add(descType);
 		sortMenu.add(nearDate);
@@ -133,7 +135,7 @@ public class OverviewGUI {
 					// When the edit frame is closed
 					editGUI.getFrame().addWindowListener(new WindowAdapter() {
 						public void windowClosing(WindowEvent e) {
-							reloadTable(listOfBills);
+							reloadTable(listOfBills); // updates table with new edits
 						}
 					});
 				}
@@ -274,6 +276,10 @@ public class OverviewGUI {
 
 		return returnBill;
 	}
+	
+	///////////////////////
+	// sorting functions //
+	///////////////////////
 
 	// Sorts the type (selection sort)
 	private void typeSorter(LinkedList<Bill> listOfBills, int type) {
@@ -344,7 +350,14 @@ public class OverviewGUI {
 			LocalDate billDueDate = listOfBills.get(i).getDueDate();
 			
 			if (billDueDate.compareTo(today) < 0) { // if the date has passed (does not count if the date is today)
-				System.out.println(listOfBills.get(i).getType()+" has passed");
+				LocalDate oldDate = listOfBills.get(i).getDueDate();
+				int payPeriod = listOfBills.get(i).getPayPeriod();
+				
+				LocalDate newDueDate = oldDate.plusMonths(payPeriod);
+				listOfBills.get(i).setDueDate(newDueDate);
+				
+				// set paid back to false
+				if (listOfBills.get(i).getPaid()) listOfBills.get(i).setPaid(false);
 			}
 		}
 	}
