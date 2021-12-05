@@ -1,26 +1,30 @@
+// For the GUI
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
-
-import java.awt.AWTException;
 import java.awt.Font;
+
+import java.awt.event.*; // Action listener
+
+// For the system tray (alerts)
+import java.awt.AWTException;
 import java.awt.SystemTray;
-import java.awt.event.*;
+
+// Lists
+import java.util.LinkedList;
+import java.util.ArrayList;
+
+// File handling (serializing)
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
 
 public class MainGUI {
 
 	private JFrame frame = new JFrame("Bill tracker");
 
-	private Object[] saveList = retrieveFromFile(); // deserializing the two things from the file (below)
-
+	private Object[] saveList = retrieveFromFile(); // deserializing the file that holds the two things below
 	private LinkedList<Bill> listOfBills = (LinkedList<Bill>) saveList[0]; // getting the deserialized linkedlist
 	private ArrayList<Integer> remindList = (ArrayList<Integer>) saveList[1]; // getting the deserialized arraylist
 
@@ -34,8 +38,9 @@ public class MainGUI {
 	private AddNewGUI addNewGUI = new AddNewGUI(listOfBills);
 	private SettGUI settGUI = new SettGUI(remindList);
 
-	private int panel = 0; // also for validation - to see which panel is currently visible (0 = overview)
+	private int panel = 0; // also for validation - to know which panel is currently visible (0 = overview)
 
+	// Label used in the validations
 	private JLabel confirmLabel = new JLabel("You will lose your unsaved info. Do you wish to proceed?");
 
 	private Font buttonFont = new Font(null, Font.PLAIN, 24); // font for the nav buttons
@@ -51,6 +56,7 @@ public class MainGUI {
 
 		frame.pack();
 		frame.setVisible(true);
+		frame.setLocationRelativeTo(null); // puts the program in the center of the screen
 
 		// Actions taken when user wants to close program
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // don't close
@@ -66,10 +72,10 @@ public class MainGUI {
 		});
 
 		/////////////////////////////
-		// BUTTON ACTION LISTENERS //
+		// button action listeners //
 		/////////////////////////////
 
-		// Button toggles overview
+		// opens overview
 		ovButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// if add new doesn't have empty fields and settings fields aren't changed
@@ -82,7 +88,7 @@ public class MainGUI {
 			}
 		});
 
-		// Button toggles add new
+		// opens add new
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// if settings fields haven't been changed
@@ -93,7 +99,7 @@ public class MainGUI {
 			}
 		});
 
-		// Button toggles settings
+		// opens settings
 		settButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (addNewValidation() == 0) { // if add new doesn't have empty fields
@@ -103,9 +109,13 @@ public class MainGUI {
 			}
 		});
 
-		Reminders reminders = new Reminders(listOfBills, remindList); // handles the alerting stuff
+		////////////////////////////////////
+		// Sending out the reminder/alert //
+		////////////////////////////////////
+		
+		Reminders reminders = new Reminders(listOfBills, remindList); // creates a list of bills that need a reminder
 		if (reminders.hasAlerts()) {
-			String messageAlertStr = reminders.getAlertMessageStr();
+			String messageAlertStr = reminders.getAlertMessageStr(); // the string used in the alert
 			
 			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
 				try {
@@ -115,12 +125,17 @@ public class MainGUI {
 			}
 			
 			else { // OS doesn't support the system tray, so send out dialog box instead
+				// html used for formatting
 				JLabel alertLabel = new JLabel("<html><p style=\"width:250px\">"+messageAlertStr+"</p></html>");
 				alertLabel.setFont(new Font(null,Font.PLAIN,16));
 				JOptionPane.showMessageDialog(frame,alertLabel);
 			}
 		}
 	}
+	
+	////////////////////
+	// Navigation bar //
+	////////////////////
 
 	// Creating the navigation bar and its functions
 	public void NavBar() {
@@ -153,7 +168,11 @@ public class MainGUI {
 		frame.revalidate(); // these two reload the frame
 		frame.repaint();
 	}
-
+	
+	/////////////////
+	// Validations //
+	/////////////////
+	
 	// Validation for addnew
 	private int addNewValidation() {
 		int option = 0; // zero means close
@@ -178,8 +197,12 @@ public class MainGUI {
 
 		return option;
 	}
-
-	// Deserialization - retrieves linkedList from list.ser
+	
+	/////////////////////////
+	// Serialization stuff //
+	/////////////////////////
+	
+	// Deserialization - retrieves linkedList from saveFile.ser
 	private Object[] retrieveFromFile() {
 
 		LinkedList<Bill> listOfBills = new LinkedList<Bill>();
@@ -187,9 +210,9 @@ public class MainGUI {
 		Object[] savedList = new Object[] { listOfBills, remindList };
 
 		try {
-			FileInputStream file = new FileInputStream("list.ser");
+			FileInputStream file = new FileInputStream("saveFile.ser");
 			ObjectInputStream in = new ObjectInputStream(file);
-
+//
 			savedList = (Object[]) in.readObject();
 
 			in.close();
@@ -208,10 +231,10 @@ public class MainGUI {
 		return savedList;
 	}
 
-	// Serialization - saves linkedList and remindList to list.ser
+	// Serialization - saves linkedList and remindList to saveFile.ser
 	private void saveList() {
 		try {
-			FileOutputStream file = new FileOutputStream("list.ser");
+			FileOutputStream file = new FileOutputStream("saveFile.ser");
 			ObjectOutputStream out = new ObjectOutputStream(file);
 
 			Object[] savedList = new Object[] { listOfBills, remindList };
