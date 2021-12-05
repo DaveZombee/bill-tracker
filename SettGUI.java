@@ -1,10 +1,11 @@
+// GUI
 import java.awt.Font;
 import javax.swing.*;
-import javax.swing.JSpinner.DefaultEditor;
-
+import javax.swing.JSpinner.DefaultEditor; // for JSpinners to have wider text field
 import net.miginfocom.swing.MigLayout;
-import java.awt.event.*;
-import java.util.ArrayList;
+
+import java.awt.event.*; // Action listeners
+import java.util.ArrayList; // the list of reminders and bills which need reminding
 
 public class SettGUI {
 
