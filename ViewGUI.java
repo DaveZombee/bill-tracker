@@ -1,11 +1,10 @@
+// GUI
 import java.awt.Font;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import javax.swing.*;
-
 import net.miginfocom.swing.MigLayout;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 public class ViewGUI {
 	
 	private JFrame frame = new JFrame("Bill tracker");
@@ -54,6 +53,6 @@ public class ViewGUI {
 		
 		frame.pack();
 		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 	}
-	
 }
