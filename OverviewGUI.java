@@ -142,7 +142,7 @@ public class OverviewGUI {
 			}
 		});
 
-		paidItem.addActionListener(new ActionListener() { // this doesn't work :(
+		paidItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selRow = actualTable.getSelectedRow();
 
