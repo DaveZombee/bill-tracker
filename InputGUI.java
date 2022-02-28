@@ -183,3 +183,4 @@ public class InputGUI {
 	public JPanel getPanel() {
 		return panel;
 	}
+}
