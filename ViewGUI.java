@@ -37,7 +37,7 @@ public class ViewGUI {
 		dueDateLabel.setText("Due date: "+dueDateStr);
 		payPeriodLabel.setText("Payment period: "+(String.valueOf(bill.getPayPeriod())+" month(s)"));
 		estDueDateLabel.setText("Next estimated due date: "+estDueDateStr);
-		notesLabel.setText("<html><p style=\"width:300px\">Notes:"+bill.getNotes()+"</p></html>"); // html for text wrap
+		notesLabel.setText("<html><p style=\"width:300px\">Notes: "+bill.getNotes()+"</p></html>"); // html for text wrap
 		paidLabel.setText("Paid: "+paidStr);
 		
 		// Setting the label fonts
