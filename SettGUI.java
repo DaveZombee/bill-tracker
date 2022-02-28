@@ -97,7 +97,7 @@ public class SettGUI {
 		int firstSpinnerAmt = (int) firstRemindSpinner.getValue();
 		int secondSpinnerAmt = (int) secondRemindSpinner.getValue();
 		
-		// the actual checking process
+		// Actually checking
 		if(firstSpinnerAmt != remindList.get(0) || secondSpinnerAmt != remindList.get(1)) {
 			changed = true;
 		}
