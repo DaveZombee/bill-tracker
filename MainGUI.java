@@ -117,21 +117,21 @@ public class MainGUI {
 		if (reminders.hasAlerts()) {
 			String messageAlertStr = reminders.getAlertMessageStr(); // the string used in the alert
 
-//			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
-//			try {
-//				reminders.alertSender(messageAlertStr); // sends out the alert with the message
-//			} catch (AWTException e) { // catch doesn't do anything
-//			}
-//		}
-//
-//			else { // OS doesn't support the system tray, so send out dialog box instead
+			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
+			try {
+				reminders.alertSender(messageAlertStr); // sends out the alert with the message
+			} catch (AWTException e) { // catch doesn't do anything
+			}
+		}
+
+			else { // OS doesn't support the system tray, so send out dialog box instead
 				// html used to format
 				JLabel alertLabel = new JLabel("<html><p style=\"width:250px\">"+messageAlertStr+"</p></html>");
 				alertLabel.setFont(new Font(null,Font.PLAIN,16));
 				JOptionPane.showMessageDialog(frame,alertLabel);
 			}
 		}
-//	}
+	}
 
 	////////////////////
 	// Navigation bar //
