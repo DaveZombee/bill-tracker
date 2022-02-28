@@ -213,7 +213,7 @@ public class MainGUI {
 		try {
 			FileInputStream file = new FileInputStream("saveFile.ser");
 			ObjectInputStream in = new ObjectInputStream(file);
-//
+
 			savedList = (Object[]) in.readObject();
 
 			in.close();
