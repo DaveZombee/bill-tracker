@@ -55,7 +55,7 @@ public class Reminders {
 					alertStr += needReminders.get(i).getType().toLowerCase();
 				else
 					alertStr += "and " + needReminders.get(i).getType().toLowerCase();
-			} else
+			} else // any of the other ones
 				alertStr += needReminders.get(i).getType().toLowerCase() + ", ";
 		}
 		
