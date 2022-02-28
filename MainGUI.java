@@ -1,3 +1,4 @@
+
 // For the GUI
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
@@ -82,7 +83,6 @@ public class MainGUI {
 				if (addNewValidation() == 0 && settingsValidation() == 0) {
 					buttonClicked(overviewGUI.getPanel(), ovButton, addNewButton, settButton);
 					overviewGUI.reloadTable(listOfBills); // updates jtable
-
 					panel = 0;
 				}
 			}
@@ -112,27 +112,27 @@ public class MainGUI {
 		////////////////////////////////////
 		// Sending out the reminder/alert //
 		////////////////////////////////////
-		
+
 		Reminders reminders = new Reminders(listOfBills, remindList); // creates a list of bills that need a reminder
 		if (reminders.hasAlerts()) {
 			String messageAlertStr = reminders.getAlertMessageStr(); // the string used in the alert
-			
-			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
-				try {
-					reminders.alertSender(messageAlertStr); // sends out the alert with the message
-				} catch (AWTException e) {
-				}
-			}
-			
-			else { // OS doesn't support the system tray, so send out dialog box instead
-				// html used for formatting
+
+//			if (SystemTray.isSupported()) { // if the OS supports the system tray (windows)
+//			try {
+//				reminders.alertSender(messageAlertStr); // sends out the alert with the message
+//			} catch (AWTException e) { // catch doesn't do anything
+//			}
+//		}
+//
+//			else { // OS doesn't support the system tray, so send out dialog box instead
+				// html used to format
 				JLabel alertLabel = new JLabel("<html><p style=\"width:250px\">"+messageAlertStr+"</p></html>");
 				alertLabel.setFont(new Font(null,Font.PLAIN,16));
 				JOptionPane.showMessageDialog(frame,alertLabel);
 			}
 		}
-	}
-	
+//	}
+
 	////////////////////
 	// Navigation bar //
 	////////////////////
@@ -151,7 +151,8 @@ public class MainGUI {
 		ovButton.setEnabled(false); // can't click the overview button
 	}
 
-	// Generic form of action taken when any of the nav buttons are clicked, used above
+	// Generic form of action taken when any of the nav buttons are clicked, used
+	// above
 	private void buttonClicked(JPanel targetPanel, JButton clickedButton, JButton unclickedButton1,
 			JButton unclickedButton2) {
 		frame.getContentPane().removeAll(); // Removes everything from the frame
@@ -168,11 +169,11 @@ public class MainGUI {
 		frame.revalidate(); // these two reload the frame
 		frame.repaint();
 	}
-	
+
 	/////////////////
 	// Validations //
 	/////////////////
-	
+
 	// Validation for addnew
 	private int addNewValidation() {
 		int option = 0; // zero means close
@@ -197,11 +198,11 @@ public class MainGUI {
 
 		return option;
 	}
-	
+
 	/////////////////////////
 	// Serialization stuff //
 	/////////////////////////
-	
+
 	// Deserialization - retrieves linkedList from saveFile.ser
 	private Object[] retrieveFromFile() {
 
